@@ -108,6 +108,7 @@
       justify-content: space-between;
       align-items: center;
       height: 64px;
+      padding: 0 32px;           /* logo in the left corner, menu in the right */
     }
 
     .logo {
@@ -215,10 +216,15 @@
       align-self: flex-start;
     }
 
-    .btn:hover {
-      background: var(--orange-light);
-      transform: translateY(-2px);
+    .btn:hover { background: var(--orange-light); }
+
+    /* After the hero has appeared, the button smoothly grows under the cursor */
+    .hero.done .btn.reveal {
+      transition: background 0.2s, transform 0.25s ease;
+      transition-delay: 0s;
     }
+
+    .hero.done .btn.reveal:hover { transform: scale(1.08); }
 
     /* Hero parts fade in one after another when the intro ends */
     .reveal {
@@ -316,8 +322,6 @@
       color: rgba(217, 119, 87, 0.38);
     }
 
-    .drift pre:nth-child(even) { color: rgba(250, 249, 245, 0.16); }
-
     @keyframes drift {
       to { transform: translateY(-50%); }
     }
@@ -367,6 +371,7 @@
 
     /* ===== Phone screens ===== */
     @media (max-width: 600px) {
+      nav { padding: 0 20px; }
       nav ul { gap: 16px; }
       .hero { padding: 60px 20px; }
       section { padding: 60px 0; }
@@ -392,7 +397,7 @@
   </div>
 
   <header>
-    <nav class="container">
+    <nav>
       <a href="#" class="logo">Shiro<span>.</span></a>
       <ul>
         <li><a href="#services">Services</a></li>
@@ -512,6 +517,8 @@ git push origin main</pre></div>
       intro.classList.add("hide");
       document.body.classList.remove("loading");
       hero.classList.add("ready");
+      // the fade-in takes ~1.2s; after that the button gets its quick hover effect
+      setTimeout(() => hero.classList.add("done"), 1300);
     }
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
