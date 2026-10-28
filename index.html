@@ -199,7 +199,7 @@
     .hero-text {
       color: var(--gray);
       font-size: 1.2rem;
-      max-width: 520px;
+      max-width: 440px;
       margin-bottom: 36px;
     }
 
@@ -286,6 +286,53 @@
 
     .card p { color: var(--gray); }
 
+    /* ===== Code drifting up on the right side of the main screen ===== */
+    .hero-visual {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 430px;
+      height: 460px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 1s ease 0.6s;
+      pointer-events: none;
+      /* fade the code out at the top and bottom edges */
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+              mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+    }
+
+    .ready .hero-visual { opacity: 1; }
+
+    .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+
+    /* The code is written twice; moving up by half makes an endless loop */
+    .drift-track { animation: drift 30s linear infinite; }
+
+    .drift pre {
+      font-size: 0.95rem;
+      line-height: 1.9;
+      color: rgba(217, 119, 87, 0.38);
+    }
+
+    .drift pre:nth-child(even) { color: rgba(250, 249, 245, 0.16); }
+
+    @keyframes drift {
+      to { transform: translateY(-50%); }
+    }
+
+    /* Narrow screens: the code goes under the button instead of the right side */
+    @media (max-width: 960px) {
+      .hero-visual {
+        position: static;
+        transform: none;
+        width: 100%;
+        height: 260px;
+        margin-top: 40px;
+      }
+    }
+
     /* ===== Footer ===== */
     footer {
       border-top: 1px solid var(--border);
@@ -332,6 +379,7 @@
       #intro { display: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
       .char.pop { animation: none; }
+      .drift-track { animation: none; }
     }
   </style>
 </head>
@@ -360,6 +408,65 @@
         <h1 class="reveal" id="title">Hi, I'm <span class="accent">Shiro</span></h1>
         <p class="hero-text reveal">I build modern websites and Telegram bots that help your business grow.</p>
         <a href="#services" class="btn reveal">My services</a>
+      <div class="hero-visual drift">
+        <div class="drift-track mono"><pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;title&gt;Shiro&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hi, I'm Shiro&lt;/h1&gt;
+&lt;/body&gt;
+.hero {
+  display: flex;
+  color: #d97757;
+}
+const bot = new Bot(token);
+bot.on("message", (ctx) =&gt; {
+  ctx.reply("Hello! 👋");
+});
+function build(idea) {
+  const site = design(idea);
+  return deploy(site);
+}
+async function getOrders() {
+  const res = await fetch("/api");
+  return res.json();
+}
+@media (max-width: 600px) {
+  .card { padding: 24px; }
+}
+git commit -m "new website"
+git push origin main</pre><pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;title&gt;Shiro&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hi, I'm Shiro&lt;/h1&gt;
+&lt;/body&gt;
+.hero {
+  display: flex;
+  color: #d97757;
+}
+const bot = new Bot(token);
+bot.on("message", (ctx) =&gt; {
+  ctx.reply("Hello! 👋");
+});
+function build(idea) {
+  const site = design(idea);
+  return deploy(site);
+}
+async function getOrders() {
+  const res = await fetch("/api");
+  return res.json();
+}
+@media (max-width: 600px) {
+  .card { padding: 24px; }
+}
+git commit -m "new website"
+git push origin main</pre></div>
+      </div>
       </div>
     </div>
 
