@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shiro — Websites & Bots</title>
+  <title>Shiro Lab — Websites & Bots</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="description" content="Shiro builds websites and Telegram bots.">
   <style>
@@ -59,7 +59,7 @@
 
     .intro-word {
       display: flex;
-      font-size: clamp(4rem, 18vw, 9rem);
+      font-size: clamp(3rem, 14vw, 8rem);
       font-weight: 800;
       line-height: 1;
       overflow: hidden;          /* letters are hidden below until they jump up */
@@ -69,20 +69,19 @@
     .intro-word span {
       display: inline-block;
       transform: translateY(110%);
-      animation: letter-up 0.9s cubic-bezier(0.2, 0.8, 0.2, 1.2) forwards;
+      animation: letter-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1.2) forwards;
+      /* Each letter starts a bit later than the previous one (--i is its number) */
+      animation-delay: calc(0.15s + var(--i) * 0.12s);
     }
 
-    /* Each letter starts a bit later than the previous one */
-    .intro-word span:nth-child(1) { animation-delay: 0.15s; }
-    .intro-word span:nth-child(2) { animation-delay: 0.35s; }
-    .intro-word span:nth-child(3) { animation-delay: 0.55s; }
-    .intro-word span:nth-child(4) { animation-delay: 0.75s; }
-    .intro-word span:nth-child(5) { animation-delay: 0.95s; }
+    .intro-word .space { width: 0.28em; }
+
+    .intro-word .lab { color: var(--orange); }
 
     .intro-word .dot {
       color: var(--orange);
       transform: scale(0);
-      animation: dot-pop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 1.9s forwards;
+      animation: dot-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) 1.75s forwards;
     }
 
     @keyframes letter-up {
@@ -137,7 +136,7 @@
     /* ===== Main screen ===== */
     .hero-wrap {
       position: relative;
-      overflow: hidden;
+      overflow-x: clip;          /* the glow may spill down softly, but never sideways */
     }
 
     /* Soft orange glow that slowly follows the cursor */
@@ -392,13 +391,13 @@
 
   <div id="intro" title="Click to skip">
     <div class="intro-word">
-      <span>S</span><span>h</span><span>i</span><span>r</span><span>o</span><span class="dot">.</span>
+      <span style="--i:0">S</span><span style="--i:1">h</span><span style="--i:2">i</span><span style="--i:3">r</span><span style="--i:4">o</span><span class="space" style="--i:5"></span><span class="lab" style="--i:6">L</span><span class="lab" style="--i:7">a</span><span class="lab" style="--i:8">b</span><span class="dot">.</span>
     </div>
   </div>
 
   <header>
     <nav>
-      <a href="#" class="logo">Shiro<span>.</span></a>
+      <a href="#" class="logo">Shiro <span>Lab.</span></a>
       <ul>
         <li><a href="#services">Services</a></li>
       </ul>
@@ -496,7 +495,7 @@ git push origin main</pre></div>
 
   <footer>
     <div class="container">
-      <span>&copy; <span id="year">2026</span> Shiro. All rights reserved. &middot;</span>
+      <span>&copy; <span id="year">2026</span> Shiro Lab. All rights reserved. &middot;</span>
       <a class="footer-link" href="https://github.com/Shiro-dev1" target="_blank" rel="noopener">
         <svg class="gh-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         GitHub
@@ -507,6 +506,11 @@ git push origin main</pre></div>
   <script>
     // Always show the current year in the footer
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // After a reload the browser jumps back to where you scrolled before.
+    // The site starts with the intro, so always begin at the top instead.
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
 
     // ----- Intro: hide it after the letters finish, or right away on click -----
     const intro = document.getElementById("intro");
@@ -525,7 +529,7 @@ git push origin main</pre></div>
     if (reduceMotion) {
       finishIntro();
     } else {
-      setTimeout(finishIntro, 3000);
+      setTimeout(finishIntro, 2600);
       intro.addEventListener("click", finishIntro);
     }
 
