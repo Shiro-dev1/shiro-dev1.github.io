@@ -26,12 +26,70 @@
       color: var(--white);
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       line-height: 1.6;
+      overflow-x: hidden;
     }
+
+    /* While the intro is playing, the page can't be scrolled */
+    body.loading { overflow: hidden; }
 
     .container {
       max-width: 1000px;
       margin: 0 auto;
       padding: 0 20px;
+    }
+
+    /* ===== Intro screen: letters of "Shiro." jump out one by one ===== */
+    #intro {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      cursor: pointer;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+    }
+
+    #intro.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .intro-word {
+      display: flex;
+      font-size: clamp(4rem, 18vw, 9rem);
+      font-weight: 800;
+      line-height: 1;
+      overflow: hidden;          /* letters are hidden below until they jump up */
+      padding: 0.1em 0.05em;
+    }
+
+    .intro-word span {
+      display: inline-block;
+      transform: translateY(110%);
+      animation: letter-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1.2) forwards;
+    }
+
+    /* Each letter starts a bit later than the previous one */
+    .intro-word span:nth-child(1) { animation-delay: 0.10s; }
+    .intro-word span:nth-child(2) { animation-delay: 0.20s; }
+    .intro-word span:nth-child(3) { animation-delay: 0.30s; }
+    .intro-word span:nth-child(4) { animation-delay: 0.40s; }
+    .intro-word span:nth-child(5) { animation-delay: 0.50s; }
+
+    .intro-word .dot {
+      color: var(--orange);
+      transform: scale(0);
+      animation: dot-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) 0.9s forwards;
+    }
+
+    @keyframes letter-up {
+      to { transform: translateY(0); }
+    }
+
+    @keyframes dot-pop {
+      to { transform: scale(1); }
     }
 
     /* ===== Top menu ===== */
@@ -75,7 +133,27 @@
     nav a:hover { color: var(--orange); }
 
     /* ===== Main screen ===== */
+    .hero-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Soft orange glow that slowly follows the cursor */
+    .glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 600px;
+      height: 600px;
+      margin: -300px 0 0 -300px;   /* center the glow on its position */
+      border-radius: 50%;
+      background: radial-gradient(circle closest-side, rgba(217, 119, 87, 0.22), rgba(217, 119, 87, 0.08) 50%, rgba(217, 119, 87, 0));
+      pointer-events: none;
+      will-change: transform;
+    }
+
     .hero {
+      position: relative;        /* stays above the glow */
       min-height: calc(100vh - 64px);
       display: flex;
       flex-direction: column;
@@ -96,9 +174,26 @@
       font-size: clamp(2.5rem, 8vw, 4.5rem);
       line-height: 1.1;
       margin-bottom: 20px;
+      cursor: default;
+      user-select: none;
     }
 
-    .hero h1 span { color: var(--orange); }
+    .hero h1 .accent { color: var(--orange); }
+
+    /* Every letter of the title is its own <span class="char"> (made by JS) */
+    .char { display: inline-block; }
+
+    .char.pop { animation: char-pop 0.6s ease; }
+
+    .char.pop:not(.accent) { --pop-color: var(--orange); }
+    .char.pop.accent { --pop-color: var(--white); }
+
+    @keyframes char-pop {
+      0%   { transform: translateY(0) scale(1); }
+      35%  { transform: translateY(-14px) scale(1.2) rotate(-6deg); color: var(--pop-color); }
+      70%  { transform: translateY(3px) scale(0.95); }
+      100% { transform: translateY(0) scale(1); }
+    }
 
     .hero-text {
       color: var(--gray);
@@ -123,6 +218,22 @@
       background: var(--orange-light);
       transform: translateY(-2px);
     }
+
+    /* Hero parts fade in one after another when the intro ends */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .ready .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ready .reveal:nth-child(2) { transition-delay: 0.15s; }
+    .ready .reveal:nth-child(3) { transition-delay: 0.30s; }
+    .ready .reveal:nth-child(4) { transition-delay: 0.45s; }
 
     /* ===== Sections ===== */
     section { padding: 80px 0; }
@@ -174,24 +285,6 @@
 
     .card p { color: var(--gray); }
 
-    /* ===== Projects ===== */
-    .coming-soon {
-      background: var(--bg-card);
-      border: 1px dashed var(--orange);
-      border-radius: 12px;
-      padding: 48px;
-      text-align: center;
-      color: var(--gray);
-      font-size: 1.1rem;
-    }
-
-    .coming-soon strong {
-      display: block;
-      color: var(--orange);
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-    }
-
     /* ===== Footer ===== */
     footer {
       border-top: 1px solid var(--border);
@@ -205,28 +298,44 @@
       nav ul { gap: 16px; }
       .hero { padding: 60px 20px; }
       section { padding: 60px 0; }
-      .card, .coming-soon { padding: 24px; }
+      .card { padding: 24px; }
+      .glow { width: 400px; height: 400px; margin: -200px 0 0 -200px; }
+    }
+
+    /* People who turned off animations in their system settings get a calm page */
+    @media (prefers-reduced-motion: reduce) {
+      #intro { display: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .char.pop { animation: none; }
     }
   </style>
 </head>
-<body>
+<body class="loading">
+
+  <div id="intro" title="Click to skip">
+    <div class="intro-word">
+      <span>S</span><span>h</span><span>i</span><span>r</span><span>o</span><span class="dot">.</span>
+    </div>
+  </div>
 
   <header>
     <nav class="container">
       <a href="#" class="logo">Shiro<span>.</span></a>
       <ul>
         <li><a href="#services">Services</a></li>
-        <li><a href="#projects">Projects</a></li>
       </ul>
     </nav>
   </header>
 
   <main>
-    <div class="container hero">
-      <p class="hero-tag">Web developer</p>
-      <h1>Hi, I'm <span>Shiro</span></h1>
-      <p class="hero-text">I build modern websites and Telegram bots that help your business grow.</p>
-      <a href="#projects" class="btn">See my work</a>
+    <div class="hero-wrap">
+      <div class="glow"></div>
+      <div class="container hero">
+        <p class="hero-tag reveal">Web developer</p>
+        <h1 class="reveal" id="title">Hi, I'm <span class="accent">Shiro</span></h1>
+        <p class="hero-text reveal">I build modern websites and Telegram bots that help your business grow.</p>
+        <a href="#services" class="btn reveal">My services</a>
+      </div>
     </div>
 
     <section id="services">
@@ -246,16 +355,6 @@
         </div>
       </div>
     </section>
-
-    <section id="projects">
-      <div class="container">
-        <h2 class="section-title">Projects</h2>
-        <div class="coming-soon">
-          <strong>Coming soon</strong>
-          My first projects are on the way. Stay tuned!
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer>
@@ -267,6 +366,96 @@
   <script>
     // Always show the current year in the footer
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // ----- Intro: hide it after the letters finish, or right away on click -----
+    const intro = document.getElementById("intro");
+    const hero = document.querySelector(".hero");
+
+    function finishIntro() {
+      if (!document.body.classList.contains("loading")) return;
+      intro.classList.add("hide");
+      document.body.classList.remove("loading");
+      hero.classList.add("ready");
+    }
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      finishIntro();
+    } else {
+      setTimeout(finishIntro, 2000);
+      intro.addEventListener("click", finishIntro);
+    }
+
+    // ----- Title: wrap every letter in its own <span class="char"> -----
+    const title = document.getElementById("title");
+
+    function splitLetters(node) {
+      for (const child of [...node.childNodes]) {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const pieces = document.createDocumentFragment();
+          for (const letter of child.textContent) {
+            if (letter === " ") {
+              pieces.append(" ");
+              continue;
+            }
+            const span = document.createElement("span");
+            span.className = "char";
+            if (node.classList.contains("accent")) span.classList.add("accent");
+            span.textContent = letter;
+            pieces.append(span);
+          }
+          child.replaceWith(pieces);
+        } else {
+          splitLetters(child);
+        }
+      }
+    }
+
+    splitLetters(title);
+
+    // Make a letter jump; the animation restarts every time it is triggered
+    function pop(char) {
+      if (!char || !char.classList.contains("char") || char.classList.contains("pop")) return;
+      char.classList.add("pop");
+      char.addEventListener("animationend", () => char.classList.remove("pop"), { once: true });
+    }
+
+    // Mouse: letter jumps when the cursor touches it
+    title.addEventListener("mouseover", (e) => pop(e.target));
+
+    // Phone: letter jumps when a finger touches or slides over it
+    function popUnderFinger(e) {
+      const touch = e.touches[0];
+      pop(document.elementFromPoint(touch.clientX, touch.clientY));
+    }
+    title.addEventListener("touchstart", popUnderFinger, { passive: true });
+    title.addEventListener("touchmove", popUnderFinger, { passive: true });
+
+    // ----- Glow that smoothly follows the cursor -----
+    const glow = document.querySelector(".glow");
+    const heroWrap = document.querySelector(".hero-wrap");
+
+    // Start position: right side of the main screen
+    let targetX = heroWrap.clientWidth * 0.7;
+    let targetY = heroWrap.clientHeight * 0.45;
+    let glowX = targetX;
+    let glowY = targetY;
+
+    heroWrap.addEventListener("mousemove", (e) => {
+      const box = heroWrap.getBoundingClientRect();
+      targetX = e.clientX - box.left;
+      targetY = e.clientY - box.top;
+    });
+
+    function moveGlow() {
+      // Move only 6% of the way each frame, so the glow lags behind softly
+      glowX += (targetX - glowX) * 0.06;
+      glowY += (targetY - glowY) * 0.06;
+      glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+      requestAnimationFrame(moveGlow);
+    }
+
+    moveGlow();
   </script>
 
 </body>
